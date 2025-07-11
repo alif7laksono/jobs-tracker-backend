@@ -21,3 +21,5 @@ app.use("/api/applications", require("./routes/applications"));
 // ❌ DON'T use app.listen()
 // ✅ Export the app for Vercel
 module.exports = app;
+
+// make small changes
