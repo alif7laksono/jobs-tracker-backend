@@ -18,10 +18,8 @@ mongoose
     .catch((err) => console.error("MongoDB connection error:", err));
 
 // Routes
-app.use("/api/applications", require("./routes/applications"));
+app.use("/api/applications", require("../routes/applications"));
 
 // ❌ DON'T use app.listen()
 // ✅ Export the app for Vercel
 module.exports = app;
-
-// make small changes again
