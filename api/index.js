@@ -1,3 +1,5 @@
+// api/index.js
+
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
@@ -22,4 +24,4 @@ app.use("/api/applications", require("./routes/applications"));
 // ✅ Export the app for Vercel
 module.exports = app;
 
-// make small changes
+// make small changes again
