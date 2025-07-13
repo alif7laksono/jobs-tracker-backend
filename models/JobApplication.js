@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const JobApplicationSchema = new mongoose.Schema({
     jobTitle: { type: String, required: true },
@@ -10,6 +10,6 @@ const JobApplicationSchema = new mongoose.Schema({
     jobLink: { type: String, match: /^https?:\/\/[^\s$.?#].[^\s]*$/ },
     notes: { type: String, maxlength: 1000 },
     userEmail: { type: String, required: true }
-}, { timestamps: true })
+}, { timestamps: true });
 
-module.exports = mongoose.model("JobApplicationSchema", JobApplicationSchema)
+module.exports = mongoose.model("jobapplicationschemas", JobApplicationSchema);
