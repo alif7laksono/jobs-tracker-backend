@@ -7,10 +7,14 @@ const JobApplication = require("../models/JobApplication");
 // GET all job applications (optional: filter by email via query param)
 router.get("/", async (req, res) => {
     try {
-        const { email } = req.query;
-        const query = email ? { userEmail: email } : {};
-        const apps = await JobApplication.find(query).sort({ createdAt: -1 });
-        res.json(apps);
+        const { userEmail } = req.query;
+
+        if (!userEmail) {
+            return res.status(400).json({ error: "Missing userEmail in query" });
+        }
+
+        const applications = await JobApplication.find({ userEmail });
+        res.json(applications);
     } catch (err) {
         res.status(500).json({ error: "Server error" });
     }
