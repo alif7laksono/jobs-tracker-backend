@@ -4,19 +4,38 @@ const JobApplication = require("../models/JobApplication")
 
 // Get All
 router.get("/", async (req, res) => {
-    const apps = await JobApplication.find().sort({ createdAt: -1 })
-    res.json(apps)
-})
+    try {
+        const { userEmail } = req.query;
+        if (!userEmail) {
+            return res.status(400).json({ error: "Missing userEmail in query" });
+        }
+        const apps = await JobApplication.find({ userEmail }).sort({ createdAt: -1 });
+        res.json(apps);
+    } catch (err) {
+        res.status(500).json({ error: "Server error" });
+    }
+});
 
 // Get one Application
 router.get("/:id", async (req, res) => {
-    const app = await JobApplication.findById(req.params.id);
-    res.json(app);
-})
+    try {
+        const app = await JobApplication.findOne({ _id: req.params.id, userEmail: req.query.userEmail });
+        if (!app) return res.status(404).json({ error: "Application not found or unauthorized" });
+        res.json(app);
+    } catch (err) {
+        res.status(500).json({ error: "Server error" });
+    }
+});
 
 // POST create new
 router.post("/", async (req, res) => {
-    const newApp = new JobApplication(req.body);
+    const { userEmail, ...rest } = req.body;
+
+    if (!userEmail) {
+        return res.status(400).json({ error: "User email is required" });
+    }
+
+    const newApp = new JobApplication({ ...rest, userEmail });
     await newApp.save();
     res.json(newApp);
 });
