@@ -1,25 +1,35 @@
 // api/index.js
-
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
+const jwt = require("jsonwebtoken");
 require("dotenv").config();
 
 const app = express();
 
-// Middleware
-app.use(cors());
+app.use(cors({ origin: ["https://jobs-tracker-frontend.vercel.app", "http://localhost:3000"] }));
 app.use(express.json());
 
-// Connect to MongoDB (only once)
+const verifyToken = (req, res, next) => {
+    const token = req.headers.authorization?.split(" ")[1];
+    if (!token) {
+        return res.status(401).json({ error: "Unauthorized: No token provided" });
+    }
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        req.userEmail = decoded.email;
+        req.userRole = decoded.role;
+        next();
+    } catch (err) {
+        res.status(401).json({ error: "Unauthorized: Invalid token" });
+    }
+};
+
 mongoose
     .connect(process.env.MONGODB_URI)
     .then(() => console.log("✅ MongoDB connected"))
     .catch((err) => console.error("MongoDB connection error:", err));
 
-// Routes
-app.use("/api/applications", require("../routes/applications"));
+app.use("/api/applications", verifyToken, require("../routes/applications"));
 
-// ❌ DON'T use app.listen()
-// ✅ Export the app for Vercel
 module.exports = app;

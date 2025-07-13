@@ -1,55 +1,69 @@
+// routes/applications.js
+
 const express = require("express");
 const router = express.Router();
-const JobApplication = require("../models/JobApplication")
+const JobApplication = require("../models/JobApplication");
 
-// Get All
 router.get("/", async (req, res) => {
     try {
-        const { userEmail } = req.query;
-        if (!userEmail) {
-            return res.status(400).json({ error: "Missing userEmail in query" });
-        }
-        const apps = await JobApplication.find({ userEmail }).sort({ createdAt: -1 });
+        const apps = await JobApplication.find({ userEmail: req.userEmail }).sort({ createdAt: -1 });
         res.json(apps);
     } catch (err) {
         res.status(500).json({ error: "Server error" });
     }
 });
 
-// Get one Application
 router.get("/:id", async (req, res) => {
     try {
-        const app = await JobApplication.findOne({ _id: req.params.id, userEmail: req.query.userEmail });
-        if (!app) return res.status(404).json({ error: "Application not found or unauthorized" });
+        const app = await JobApplication.findOne({ _id: req.params.id, userEmail: req.userEmail });
+        if (!app) {
+            return res.status(404).json({ error: "Application not found or unauthorized" });
+        }
         res.json(app);
     } catch (err) {
         res.status(500).json({ error: "Server error" });
     }
 });
 
-// POST create new
 router.post("/", async (req, res) => {
-    const { userEmail, ...rest } = req.body;
-
-    if (!userEmail) {
-        return res.status(400).json({ error: "User email is required" });
+    try {
+        const newApp = new JobApplication({ ...req.body, userEmail: req.userEmail });
+        await newApp.save();
+        res.json(newApp);
+    } catch (err) {
+        res.status(500).json({ error: "Server error" });
     }
-
-    const newApp = new JobApplication({ ...rest, userEmail });
-    await newApp.save();
-    res.json(newApp);
 });
 
-// PUT update
 router.put("/:id", async (req, res) => {
-    const updated = await JobApplication.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    res.json(updated);
+    try {
+        const updated = await JobApplication.findOneAndUpdate(
+            { _id: req.params.id, userEmail: req.userEmail },
+            req.body,
+            { new: true }
+        );
+        if (!updated) {
+            return res.status(404).json({ error: "Application not found or unauthorized" });
+        }
+        res.json(updated);
+    } catch (err) {
+        res.status(500).json({ error: "Server error" });
+    }
 });
 
-// DELETE
 router.delete("/:id", async (req, res) => {
-    await JobApplication.findByIdAndDelete(req.params.id);
-    res.json({ success: true });
+    try {
+        const deleted = await JobApplication.findOneAndDelete({
+            _id: req.params.id,
+            userEmail: req.userEmail,
+        });
+        if (!deleted) {
+            return res.status(404).json({ error: "Application not found or unauthorized" });
+        }
+        res.json({ success: true });
+    } catch (err) {
+        res.status(500).json({ error: "Server error" });
+    }
 });
 
 module.exports = router;
