@@ -9,7 +9,9 @@ const JobApplicationSchema = new mongoose.Schema({
     applicationDate: { type: Date, default: Date.now },
     jobLink: { type: String, match: /^https?:\/\/[^\s$.?#].[^\s]*$/ },
     notes: { type: String, maxlength: 1000 },
-    userEmail: { type: String, required: true }
+    userEmail: { type: String, required: true },
+    isDeleted: { type: Boolean, default: false },
+    deletedAt: { type: Date, default: null },
 }, { timestamps: true });
 
 module.exports = mongoose.model("jobapplicationschemas", JobApplicationSchema);
