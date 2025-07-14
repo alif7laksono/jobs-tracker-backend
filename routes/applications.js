@@ -54,14 +54,24 @@ router.put("/:id", async (req, res) => {
 });
 
 // DELETE an application
-router.delete("/:id", async (req, res) => {
+router.delete("/applications/:id", async (req, res) => {
     try {
-        const deleted = await JobApplication.findByIdAndDelete(req.params.id);
-        if (!deleted) return res.status(404).json({ error: "Application not found" });
-        res.json({ success: true });
-    } catch (err) {
-        res.status(500).json({ error: "Server error" });
+        const updated = await JobApplication.findByIdAndUpdate(
+            req.params.id,
+            { isDeleted: true, deletedAt: new Date() },
+            { new: true }
+        );
+
+        if (!updated) {
+            return res.status(404).json({ message: "Application not found" });
+        }
+
+        res.status(200).json(updated);
+    } catch (error) {
+        console.error("Error deleting application:", error);
+        res.status(500).json({ message: "Failed to delete application" });
     }
 });
+
 
 module.exports = router;
