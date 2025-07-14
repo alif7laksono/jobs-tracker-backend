@@ -54,7 +54,7 @@ router.put("/:id", async (req, res) => {
 });
 
 // DELETE an application
-router.delete("/applications/:id", async (req, res) => {
+router.delete("/:id", async (req, res) => {
     try {
         const updated = await JobApplication.findByIdAndUpdate(
             req.params.id,
@@ -127,7 +127,5 @@ router.delete("/trash/:id", async (req, res) => {
         res.status(500).json({ message: "Failed to permanently delete application" });
     }
 });
-
-
 
 module.exports = router;
