@@ -73,5 +73,61 @@ router.delete("/applications/:id", async (req, res) => {
     }
 });
 
+// GET all deleted applications
+router.get("/trash", async (req, res) => {
+    try {
+        const { userEmail } = req.query;
+
+        if (!userEmail) {
+            return res.status(400).json({ error: "Missing userEmail in query" });
+        }
+
+        const deletedApps = await JobApplication.find({
+            userEmail,
+            isDeleted: true
+        });
+        res.json(deletedApps);
+    } catch (err) {
+        res.status(500).json({ error: "Server error" });
+    }
+});
+
+// RESTORE a deleted application
+router.put("/trash/restore/:id", async (req, res) => {
+    try {
+        const restored = await JobApplication.findByIdAndUpdate(
+            req.params.id,
+            { isDeleted: false, deletedAt: null },
+            { new: true }
+        );
+
+        if (!restored) {
+            return res.status(404).json({ message: "Application not found" });
+        }
+
+        res.status(200).json(restored);
+    } catch (error) {
+        console.error("Error restoring application:", error);
+        res.status(500).json({ message: "Failed to restore application" });
+    }
+});
+
+// PERMANENTLY DELETE an application from trash
+router.delete("/trash/:id", async (req, res) => {
+    try {
+        const deleted = await JobApplication.findByIdAndDelete(req.params.id);
+
+        if (!deleted) {
+            return res.status(404).json({ message: "Application not found" });
+        }
+
+        res.status(200).json({ message: "Application permanently deleted" });
+    } catch (error) {
+        console.error("Error permanently deleting application:", error);
+        res.status(500).json({ message: "Failed to permanently delete application" });
+    }
+});
+
+
 
 module.exports = router;
