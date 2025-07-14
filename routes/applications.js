@@ -56,7 +56,7 @@ router.put("/:id", async (req, res) => {
 // DELETE an application
 router.delete("/:id", async (req, res) => {
     try {
-        const updated = await JobApplication.findByIdAndUpdate(
+        const updated = await JobApplication.findOneAndDelete(
             req.params.id,
             { isDeleted: true, deletedAt: new Date() },
             { new: true }
